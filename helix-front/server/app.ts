@@ -7,8 +7,9 @@ import fs from 'fs';
 import http from 'http';
 import https from 'https';
 import session from 'express-session';
+import cookieParser from 'cookie-parser';
 
-import { SSL, SESSION_STORE } from './config';
+import { SSL, SESSION_STORE, IDENTITY_TOKEN_SOURCE } from './config';
 import setRoutes from './routes';
 
 const app = express();
@@ -20,6 +21,11 @@ app.set('port', process.env.PORT || 4200);
 app.use('/', express.static(path.join(__dirname, '../public')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+if (IDENTITY_TOKEN_SOURCE) {
+  app.use(cookieParser);
+}
+
 app.use(
   session({
     store: SESSION_STORE,
