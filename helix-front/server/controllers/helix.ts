@@ -2,7 +2,7 @@ import { Request, Response, Router } from 'express';
 
 import * as request from 'request';
 
-import { HELIX_ENDPOINTS } from '../config';
+import { HELIX_ENDPOINTS, IDENTITY_TOKEN_SOURCE } from '../config';
 import { HelixUserRequest } from './d';
 
 export class HelixCtrl {
@@ -50,6 +50,21 @@ export class HelixCtrl {
           'Helix-User': user,
         },
       };
+
+      //
+      // If an auth token source is specified in the config
+      // use the LDAP username and password to obtain a token
+      // store that token in a cookie
+      // then read that token from a cookie
+      // then pass that token to the server
+      // in the `Identity-Token` header
+      //
+      if (IDENTITY_TOKEN_SOURCE) {
+        // pass that token to the server
+        // in the `Identity-Token` header
+        options.headers['Identity-Token'] = req.cookies['Identity-Token'];
+      }
+
       request[method](options, (error, response, body) => {
         if (error) {
           res.status(response?.statusCode || 500).send(error);

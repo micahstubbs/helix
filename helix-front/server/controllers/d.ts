@@ -7,4 +7,5 @@ export interface HelixUserRequest extends Request {
 interface HelixSession {
   username: string;
   isAdmin: boolean;
+  cookie?: any;
 }

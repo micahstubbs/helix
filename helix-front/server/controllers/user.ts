@@ -1,7 +1,12 @@
-import { Request, Response, Router } from 'express';
+import { CookieOptions, Request, Response, Router } from 'express';
 import * as LdapClient from 'ldapjs';
 
-import { LDAP } from '../config';
+import {
+  LDAP,
+  IDENTITY_TOKEN_SOURCE,
+  TOKEN_RESPONSE_KEY,
+  CUSTOM_IDENTITY_TOKEN_REQUEST_BODY,
+} from '../config';
 import { HelixUserRequest } from './d';
 
 export class UserCtrl {
@@ -23,6 +28,7 @@ export class UserCtrl {
   }
 
   protected current(req: HelixUserRequest, res: Response) {
+    console.log('req from current', req);
     res.json(req.session.username || 'Sign In');
   }
 
@@ -52,6 +58,80 @@ export class UserCtrl {
           response.status(401).json(false);
         } else {
           // login success
+
+          //
+          // Get an Identity-Token
+          // if an IDENTITY_TOKEN_SOURCE
+          // is specified in the config
+          //
+          if (IDENTITY_TOKEN_SOURCE) {
+            const body = JSON.stringify({
+              username: credential.username,
+              password: credential.password,
+              ...CUSTOM_IDENTITY_TOKEN_REQUEST_BODY,
+            });
+
+            const options = {
+              url: IDENTITY_TOKEN_SOURCE,
+              json: '',
+              body,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              agentOptions: {
+                rejectUnauthorized: false,
+              },
+            };
+
+            request['POST'](options, (error, _response, body) => {
+              if (error) {
+                throw new Error(
+                  `Failed to get ${IDENTITY_TOKEN_SOURCE} Token: ${error}`
+                );
+              } else if (body?.error) {
+                throw new Error(body?.error);
+              } else {
+                const parsedBody = JSON.parse(body);
+                const cookieOptions: CookieOptions = {
+                  expires: new Date(parsedBody.value.expiresOn),
+                  sameSite: 'strict',
+                  secure: true,
+                };
+                response.cookie(
+                  'Identity-Token',
+                  parsedBody.value[TOKEN_RESPONSE_KEY],
+                  cookieOptions
+                );
+
+                // TODO
+                // TODO remove testing code
+                // TODO
+                response.cookie(
+                  'TestCookieWithOptions',
+                  parsedBody.value[TOKEN_RESPONSE_KEY],
+                  cookieOptions
+                );
+
+                response.cookie(
+                  'TestCookieSession',
+                  parsedBody.value[TOKEN_RESPONSE_KEY]
+                );
+                // TODO
+                // TODO end testing code
+                // TODO
+
+                console.log('cookieOptions: ', cookieOptions);
+
+                // Update session cookie expiration to expire
+                // at the same time as the identity token
+                request.session.cookie.expires = cookieOptions.expires;
+              }
+            });
+          }
+
+          //
+          // Check if the logged in user is in the admin group
+          //
           const opts = {
             filter:
               '(&(sAMAccountName=' +
