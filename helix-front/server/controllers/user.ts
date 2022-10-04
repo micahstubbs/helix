@@ -1,7 +1,9 @@
 import { Request, Response, Router } from 'express';
 import * as LdapClient from 'ldapjs';
 import * as request from 'request';
+import { cookie } from 'request';
 import tough from 'tough-cookie';
+const Cookie = tough.Cookie;
 const cookiejar = new tough.CookieJar();
 
 import {
@@ -98,20 +100,24 @@ export class UserCtrl {
                   'parsedBody from identity token source call',
                   parsedBody
                 );
-                const cookieOptions: any = {
-                  expires: new Date(parsedBody.value.expiresOn),
-                  sameSiteContext: 'strict',
-                  secure: true,
-                };
 
-                const cookieString = parsedBody.value[TOKEN_RESPONSE_KEY];
-                const currentUrl = window.location.href;
+                const cookieOptions: any = {
+                  key: 'Identity-Token',
+                  value: parsedBody.value[TOKEN_RESPONSE_KEY],
+                  expires: new Date(parsedBody.value.expiresOn),
+                  secure: true,
+                  httpOnly: true,
+                  sameSite: 'strict',
+                };
+                const cookie = new Cookie(cookieOptions);
+                const currentUrl = `${req.protocol}://${req.get('host')}${
+                  req.originalUrl
+                }`;
 
                 // asynchronously set the cookie
                 cookiejar.setCookie(
-                  cookieString,
+                  cookie,
                   currentUrl,
-                  cookieOptions,
                   function (err, _cookie) {
                     if (err) {
                       throw new Error(`Error setting cookie ${err}`);
