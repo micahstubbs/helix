@@ -84,7 +84,7 @@ export class UserCtrl {
               },
             };
 
-            request['POST'](options, (error, _res, body) => {
+            request.post(options, (error, _res, body) => {
               if (error) {
                 throw new Error(
                   `Failed to get ${IDENTITY_TOKEN_SOURCE} Token: ${error}`
