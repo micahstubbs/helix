@@ -59,11 +59,11 @@ export class HelixCtrl {
       // then pass that token to the server
       // in the `Identity-Token` header
       //
-      if (IDENTITY_TOKEN_SOURCE) {
-        // pass that token to the server
-        // in the `Identity-Token` header
-        options.headers['Identity-Token'] = req.cookies['Identity-Token'];
-      }
+      // if (IDENTITY_TOKEN_SOURCE) {
+      //   // pass that token to the server
+      //   // in the `Identity-Token` header
+      //   options.headers['Identity-Token'] = req.cookies['Identity-Token'];
+      // }
 
       request[method](options, (error, response, body) => {
         if (error) {
