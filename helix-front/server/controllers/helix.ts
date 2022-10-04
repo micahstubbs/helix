@@ -1,5 +1,4 @@
 import { Request, Response, Router } from 'express';
-
 import * as request from 'request';
 
 import { HELIX_ENDPOINTS, IDENTITY_TOKEN_SOURCE } from '../config';

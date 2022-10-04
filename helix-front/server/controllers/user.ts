@@ -1,5 +1,6 @@
 import { CookieOptions, Request, Response, Router } from 'express';
 import * as LdapClient from 'ldapjs';
+import * as request from 'request';
 
 import {
   LDAP,
@@ -41,10 +42,10 @@ export class UserCtrl {
     }
   }
 
-  protected login(request: HelixUserRequest, response: Response) {
-    const credential = request.body;
+  protected login(req: HelixUserRequest, res: Response) {
+    const credential = req.body;
     if (!credential.username || !credential.password) {
-      response.status(401).json(false);
+      res.status(401).json(false);
       return;
     }
 
@@ -55,7 +56,7 @@ export class UserCtrl {
       credential.password,
       (err) => {
         if (err) {
-          response.status(401).json(false);
+          res.status(401).json(false);
         } else {
           // login success
 
@@ -83,7 +84,7 @@ export class UserCtrl {
               },
             };
 
-            request['POST'](options, (error, _response, body) => {
+            request['POST'](options, (error, _res, body) => {
               if (error) {
                 throw new Error(
                   `Failed to get ${IDENTITY_TOKEN_SOURCE} Token: ${error}`
@@ -97,7 +98,7 @@ export class UserCtrl {
                   sameSite: 'strict',
                   secure: true,
                 };
-                response.cookie(
+                res.cookie(
                   'Identity-Token',
                   parsedBody.value[TOKEN_RESPONSE_KEY],
                   cookieOptions
@@ -106,13 +107,13 @@ export class UserCtrl {
                 // TODO
                 // TODO remove testing code
                 // TODO
-                response.cookie(
+                res.cookie(
                   'TestCookieWithOptions',
                   parsedBody.value[TOKEN_RESPONSE_KEY],
                   cookieOptions
                 );
 
-                response.cookie(
+                res.cookie(
                   'TestCookieSession',
                   parsedBody.value[TOKEN_RESPONSE_KEY]
                 );
@@ -124,7 +125,7 @@ export class UserCtrl {
 
                 // Update session cookie expiration to expire
                 // at the same time as the identity token
-                request.session.cookie.expires = cookieOptions.expires;
+                req.session.cookie.expires = cookieOptions.expires;
               }
             });
           }
@@ -154,9 +155,9 @@ export class UserCtrl {
                 }
               }
 
-              request.session.username = credential.username;
-              request.session.isAdmin = isInAdminGroup;
-              response.json(isInAdminGroup);
+              req.session.username = credential.username;
+              req.session.isAdmin = isInAdminGroup;
+              res.json(isInAdminGroup);
             });
           });
         }
