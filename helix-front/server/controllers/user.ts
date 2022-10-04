@@ -109,20 +109,21 @@ export class UserCtrl {
                   httpOnly: true,
                   sameSite: 'strict',
                 };
-                const cookie = new Cookie(cookieOptions);
+                const identityCookie = new Cookie(cookieOptions);
                 const currentUrl = `${req.protocol}://${req.get('host')}${
                   req.originalUrl
                 }`;
 
                 // asynchronously set the cookie
                 cookiejar.setCookie(
-                  cookie,
+                  identityCookie,
                   currentUrl,
-                  function (err, _cookie) {
+                  function (err, cookie) {
                     if (err) {
                       throw new Error(`Error setting cookie ${err}`);
                     } else {
                       console.log(`Successfully set identity token cookie`);
+                      console.log(cookie);
                     }
                   }
                 );
