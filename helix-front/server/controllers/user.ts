@@ -1,6 +1,8 @@
-import { CookieOptions, Request, Response, Router } from 'express';
+import { Request, Response, Router } from 'express';
 import * as LdapClient from 'ldapjs';
 import * as request from 'request';
+import tough from 'tough-cookie';
+const cookiejar = new tough.CookieJar();
 
 import {
   LDAP,
@@ -96,16 +98,34 @@ export class UserCtrl {
                   'parsedBody from identity token source call',
                   parsedBody
                 );
-                const cookieOptions: CookieOptions = {
+                const cookieOptions: any = {
                   expires: new Date(parsedBody.value.expiresOn),
-                  sameSite: 'strict',
+                  sameSiteContext: 'strict',
                   secure: true,
                 };
-                res.cookie(
-                  'Identity-Token',
-                  parsedBody.value[TOKEN_RESPONSE_KEY],
-                  cookieOptions
+
+                const cookieString = parsedBody.value[TOKEN_RESPONSE_KEY];
+                const currentUrl = window.location.href;
+
+                // asynchronously set the cookie
+                cookiejar.setCookie(
+                  cookieString,
+                  currentUrl,
+                  cookieOptions,
+                  function (err, _cookie) {
+                    if (err) {
+                      throw new Error(`Error setting cookie ${err}`);
+                    } else {
+                      console.log(`Successfully set identity token cookie`);
+                    }
+                  }
                 );
+
+                // res.cookie(
+                //   'Identity-Token',
+                //   parsedBody.value[TOKEN_RESPONSE_KEY],
+                //   cookieOptions
+                // );
 
                 // // TODO
                 // // TODO remove testing code
