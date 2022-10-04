@@ -29,7 +29,6 @@ export class UserCtrl {
   }
 
   protected current(req: HelixUserRequest, res: Response) {
-    console.log('req from current', req);
     res.json(req.session.username || 'Sign In');
   }
 
@@ -93,6 +92,10 @@ export class UserCtrl {
                 throw new Error(body?.error);
               } else {
                 const parsedBody = JSON.parse(body);
+                console.log(
+                  'parsedBody from identity token source call',
+                  parsedBody
+                );
                 const cookieOptions: CookieOptions = {
                   expires: new Date(parsedBody.value.expiresOn),
                   sameSite: 'strict',
