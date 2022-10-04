@@ -12,11 +12,13 @@ import cookieParser from 'cookie-parser';
 import { SSL, SESSION_STORE, IDENTITY_TOKEN_SOURCE } from './config';
 import setRoutes from './routes';
 
+const PORT = 4200;
+
 const app = express();
 const server = http.createServer(app);
 
 dotenv.load({ path: '.env' });
-app.set('port', process.env.PORT || 4200);
+app.set('port', process.env.PORT || PORT);
 
 app.use('/', express.static(path.join(__dirname, '../public')));
 app.use(bodyParser.json());
@@ -25,6 +27,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // if (IDENTITY_TOKEN_SOURCE) {
 //   app.use(cookieParser);
 // }
+
+app.use(function (_req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', `http://app.local.host:${PORT}`);
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'GET, POST, OPTIONS, PUT, PATCH, DELETE'
+  );
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-Requested-With,content-type'
+  );
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 
 app.use(
   session({

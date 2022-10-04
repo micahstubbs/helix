@@ -2,9 +2,11 @@ import { Request, Response, Router } from 'express';
 import * as LdapClient from 'ldapjs';
 import * as request from 'request';
 import { cookie } from 'request';
-import tough from 'tough-cookie';
+import tough, { MemoryCookieStore } from 'tough-cookie';
 const Cookie = tough.Cookie;
-const cookiejar = new tough.CookieJar();
+const cookiejar = new tough.CookieJar(new MemoryCookieStore(), {
+  rejectPublicSuffixes: false,
+});
 
 import {
   LDAP,
@@ -101,18 +103,28 @@ export class UserCtrl {
                   parsedBody
                 );
 
+                let currentDomain = req.get('host');
+                console.log('currentDomain', currentDomain);
+                if (currentDomain.startsWith('localhost')) {
+                  currentDomain = '.localhost';
+                }
+                const currentUrl = `${req.protocol}://${req.get('host')}${
+                  req.originalUrl
+                }`;
+                console.log('currentUrl', currentUrl);
+
                 const cookieOptions: any = {
                   key: 'Identity-Token',
                   value: parsedBody.value[TOKEN_RESPONSE_KEY],
                   expires: new Date(parsedBody.value.expiresOn),
-                  secure: true,
-                  httpOnly: true,
-                  sameSite: 'strict',
+                  domain: currentDomain,
+                  secure: false,
+                  httpOnly: false,
+                  sameSite: 'None',
+                  hostOnly: false,
                 };
+                console.log('cookieOptions', cookieOptions);
                 const identityCookie = new Cookie(cookieOptions);
-                const currentUrl = `${req.protocol}://${req.get('host')}${
-                  req.originalUrl
-                }`;
 
                 // asynchronously set the cookie
                 cookiejar.setCookie(
