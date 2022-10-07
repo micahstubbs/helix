@@ -54,6 +54,11 @@ export class UserCtrl {
       return;
     }
 
+    let cookieName = 'Identity-Token';
+    let expressCookieOptions: any;
+    let cookieValue;
+    let cookieExpiresOn: any;
+
     // check LDAP
     const ldap = LdapClient.createClient({ url: LDAP.uri });
     ldap.bind(
@@ -113,8 +118,11 @@ export class UserCtrl {
                 }`;
                 console.log('currentUrl', currentUrl);
 
-                const cookieOptions: any = {
-                  key: 'Identity-Token',
+                cookieValue = parsedBody.value[TOKEN_RESPONSE_KEY];
+                cookieExpiresOn = new Date(parsedBody.value.expiresOn);
+
+                const toughCookieOptions: any = {
+                  key: cookieName,
                   value: parsedBody.value[TOKEN_RESPONSE_KEY],
                   expires: new Date(parsedBody.value.expiresOn),
                   domain: currentDomain,
@@ -123,22 +131,22 @@ export class UserCtrl {
                   sameSite: 'None',
                   hostOnly: false,
                 };
-                console.log('cookieOptions', cookieOptions);
-                const identityCookie = new Cookie(cookieOptions);
+                console.log('toughCookieOptions', toughCookieOptions);
+                // const identityCookie = new Cookie(cookieOptions);
 
-                // asynchronously set the cookie
-                cookiejar.setCookie(
-                  identityCookie,
-                  currentUrl,
-                  function (err, cookie) {
-                    if (err) {
-                      throw new Error(`Error setting cookie ${err}`);
-                    } else {
-                      console.log(`Successfully set identity token cookie`);
-                      console.log(cookie);
-                    }
-                  }
-                );
+                // // asynchronously set the cookie
+                // cookiejar.setCookie(
+                //   identityCookie,
+                //   currentUrl,
+                //   function (err, cookie) {
+                //     if (err) {
+                //       throw new Error(`Error setting cookie ${err}`);
+                //     } else {
+                //       console.log(`Successfully set identity token cookie`);
+                //       console.log(cookie);
+                //     }
+                //   }
+                // );
 
                 // res.cookie(
                 //   'Identity-Token',
@@ -162,12 +170,6 @@ export class UserCtrl {
                 // // TODO
                 // // TODO end testing code
                 // // TODO
-
-                console.log('cookieOptions: ', cookieOptions);
-
-                // Update session cookie expiration to expire
-                // at the same time as the identity token
-                req.session.cookie.expires = cookieOptions.expires;
               }
             });
           }
@@ -199,6 +201,20 @@ export class UserCtrl {
 
               req.session.username = credential.username;
               req.session.isAdmin = isInAdminGroup;
+
+              expressCookieOptions = {
+                expires: cookieExpiresOn,
+                secure: false,
+                sameSite: 'None',
+              };
+
+              console.log('expressCookieOptions: ', expressCookieOptions);
+
+              // send cookie back to client
+              res.cookie(cookieName, cookieValue, expressCookieOptions);
+              // Update session cookie expiration to expire
+              // at the same time as the identity token
+              req.session.cookie.expires = expressCookieOptions.expires;
               res.json(isInAdminGroup);
             });
           });
