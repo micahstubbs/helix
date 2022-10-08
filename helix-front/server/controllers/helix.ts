@@ -4,7 +4,7 @@ import * as request from 'request';
 import { HELIX_ENDPOINTS, IDENTITY_TOKEN_SOURCE } from '../config';
 import { HelixUserRequest } from './d';
 
-export class HelixCtrl {
+export class HelixController {
   static readonly ROUTE_PREFIX = '/api/helix';
 
   constructor(router: Router) {
@@ -13,7 +13,7 @@ export class HelixCtrl {
   }
 
   protected proxy(req: HelixUserRequest, res: Response) {
-    const url = req.originalUrl.replace(HelixCtrl.ROUTE_PREFIX, '');
+    const url = req.originalUrl.replace(HelixController.ROUTE_PREFIX, '');
     const helixKey = url.split('/')[1];
 
     const segments = helixKey.split('.');

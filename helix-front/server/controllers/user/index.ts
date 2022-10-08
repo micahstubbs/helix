@@ -5,7 +5,7 @@ import can from './can';
 import current from './current';
 import login from './login';
 
-export default function UserCtrl(router: Router) {
+export default function UserRouter(router: Router) {
   router.route('/user/authorize').get(authorize);
   router.route('/user/login').post(login);
   router.route('/user/current').get(current);
