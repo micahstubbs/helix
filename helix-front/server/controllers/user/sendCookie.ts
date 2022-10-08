@@ -42,6 +42,19 @@ export default async function sendCookie({ credential, req, res }: Props) {
 
   // TODO narrow types here, remove as any
   const parsedBody = (await getIdentityToken(credential)) as any;
+
+  expressCookieOptions:  { expires: undefined, secure: false, sameSite: 'none' }
+
+  // currentDomain localhost:4200
+// currentUrl http://localhost:4200/api/user/login
+// (node:65024) UnhandledPromiseRejectionWarning: TypeError: Cannot read property 'value' of undefined
+//     at /helix-front/dist/server/controllers/user/sendCookie.js:40:34
+//     at Generator.next (<anonymous>)
+//     at fulfilled (/helix-front/dist/server/controllers/user/sendCookie.js:5:58)
+//     at processTicksAndRejections (internal/process/task_queues.js:95:5)
+// (Use `node --trace-warnings ...` to show where the warning was created)
+// (node:65024) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). To terminate the node process on unhandled promise rejection, use the CLI flag `--unhandled-rejections=strict` (see https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode). (rejection id: 1)
+// (node:65024) [DEP0018] DeprecationWarning: Unhandled promise rejections are deprecated. In the future, promise rejections that are not handled will terminate the Node.js process with a non-zero exit code.
   cookieValue = parsedBody.value[TOKEN_RESPONSE_KEY];
   cookieExpiresOn = new Date(parsedBody.value.expiresOn);
 
