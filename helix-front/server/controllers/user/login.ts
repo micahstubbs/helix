@@ -20,7 +20,7 @@ export default async function login(req: HelixUserRequest, res: Response) {
   // TODO that returns a Promise
   // TODO that we can await
   ldap.bind(
-    credential.username + LDAP.principalSuffix,
+    `${credential.username}${LDAP.principalSuffix}`,
     credential.password,
     async (err: any) => {
       if (err) {
