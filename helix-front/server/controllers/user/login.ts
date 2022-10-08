@@ -117,29 +117,6 @@ export default function login(req: HelixUserRequest, res: Response) {
               //     }
               //   }
               // );
-
-              // res.cookie(
-              //   'Identity-Token',
-              //   parsedBody.value[TOKEN_RESPONSE_KEY],
-              //   cookieOptions
-              // );
-
-              // // TODO
-              // // TODO remove testing code
-              // // TODO
-              // res.cookie(
-              //   'TestCookieWithOptions',
-              //   parsedBody.value[TOKEN_RESPONSE_KEY],
-              //   cookieOptions
-              // );
-
-              // res.cookie(
-              //   'TestCookieSession',
-              //   parsedBody.value[TOKEN_RESPONSE_KEY]
-              // );
-              // // TODO
-              // // TODO end testing code
-              // // TODO
             }
           });
         }

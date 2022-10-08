@@ -1,20 +1,20 @@
 import * as express from 'express';
 import { Express } from 'express-serve-static-core';
 
-import UserController from './controllers/user';
-import { HelixController } from './controllers/helix';
+import userController from './controllers/user';
+import helixController from './controllers/helix';
 
 export default function setRoutes(app: Express) {
   const router = express.Router();
 
   // Instantiate routes
-  UserController(router);
-  new HelixController(router);
+  userController(router);
+  helixController(router);
 
   // Apply the routes to our application with the prefix /api
   app.use('/api', router);
 
-  /* GET /admin to check app health. */
+  /* GET /admin to enable checking app health. */
   app.get('/admin', (_req, res, _next) => {
     res.status(200).send('GOOD');
   });
