@@ -23,6 +23,6 @@ export const LDAP = {
   adminGroup: 'admin',
 };
 
-export const IDENTITY_TOKEN_SOURCE = 'www.example.com';
+export const IDENTITY_TOKEN_SOURCE = undefined; // 'www.example.com';
 export const CUSTOM_IDENTITY_TOKEN_REQUEST_BODY = {};
 export const TOKEN_RESPONSE_KEY = 'token';

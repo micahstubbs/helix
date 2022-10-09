@@ -87,6 +87,7 @@ export class AppComponent implements OnInit {
               .login(result.username.value, result.password.value)
               .subscribe(
                 (isAuthorized) => {
+                  console.log(`isAuthorized: ${isAuthorized}`);
                   if (!isAuthorized) {
                     this.helper.showError(
                       "You're not part of helix-admin group or password incorrect"
