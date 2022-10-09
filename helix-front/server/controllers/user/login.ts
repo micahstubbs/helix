@@ -20,8 +20,7 @@ export default async function login(req: HelixUserRequest, res: Response) {
   // TODO refactor to some function
   // TODO that returns a Promise
   // TODO that we can await
-  // const bindName = `${credential.username}${LDAP.principalSuffix}`
-  const bindName = `cn=${credential.username},${LDAP.base}`;
+  const bindName = `${credential.username}${LDAP.principalSuffix}`;
   ldap.bind(bindName, credential.password, async (err: any) => {
     if (err) {
       console.log('error from login', err);
