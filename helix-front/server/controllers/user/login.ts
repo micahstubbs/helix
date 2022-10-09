@@ -34,10 +34,10 @@ export default async function login(req: HelixUserRequest, res: Response) {
       //
       // Check if the logged in user is in the admin group
       //
-      const isInAdminGroup = (await isAdmin({
+      const isInAdminGroup = await isAdmin({
         credential,
         ldap,
-      })) as unknown as boolean;
+      });
 
       if (IDENTITY_TOKEN_SOURCE) {
         //
