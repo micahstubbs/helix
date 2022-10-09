@@ -7,6 +7,7 @@ import isAdmin from './isAdmin';
 import sendCookie from './sendCookie';
 
 export default async function login(req: HelixUserRequest, res: Response) {
+  console.log(`login was called`);
   const credential = req.body;
   if (!credential.username || !credential.password) {
     res.status(401).json(false);

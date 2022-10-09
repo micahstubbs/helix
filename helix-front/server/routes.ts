@@ -5,6 +5,8 @@ import userController from './controllers/user';
 import helixController from './controllers/helix';
 
 export default function setRoutes(app: Express) {
+  console.log(`setRoutes was called`);
+
   const router = express.Router();
 
   // Instantiate routes

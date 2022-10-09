@@ -1,6 +1,7 @@
 import { LDAP } from '../../config';
 
 export default async function isAdmin(props: any) {
+  console.log(`isAdmin was called`);
   const { credential, ldap } = props;
 
   // (&(objectClass=user)(sAMAccountName=yourUserName)
@@ -11,12 +12,22 @@ export default async function isAdmin(props: any) {
     scope: 'sub',
   };
 
-  ldap.search(LDAP.base, opts, function (err, result) {
+  console.log(`LDAP search opts: ${JSON.stringify(opts)}`);
+
+  //
+  // http://ldapjs.org/client.html
+  //
+  ldap.search(LDAP.base, opts, function (err, res) {
     let isInAdminGroup = false;
     if (err) {
-      console.log('error from isAdmin', err);
+      console.error('error from isAdmin', err);
     }
-    result.on('searchEntry', function (entry) {
+
+    res.on('searchRequest', (searchRequest) => {
+      console.log('searchRequest: ', searchRequest.messageID);
+    });
+
+    res.on('searchEntry', function (entry) {
       console.log('entry: ' + JSON.stringify(entry.object));
       if (entry.object && !err) {
         const groups = entry.object['memberOf'];
@@ -31,6 +42,18 @@ export default async function isAdmin(props: any) {
       }
       console.log(`isInAdminGroup: ${isInAdminGroup}`);
       return isInAdminGroup;
+    });
+
+    res.on('searchReference', (referral) => {
+      console.log('referral: ' + referral.uris.join());
+    });
+
+    res.on('error', (err) => {
+      console.error('error: ' + err.message);
+    });
+
+    res.on('end', (result) => {
+      console.log('status: ' + result.status);
     });
   });
 }
